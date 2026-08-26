@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use Neuro-Silicon Symbiosis in research, please cite this repository."
+title: "Neuro-Silicon Symbiosis"
+type: software
+authors:
+  - name: "Saptarshi Maiti"
+repository-code: "https://github.com/Fdubois123/neuro-silicon-symbiosis"
+license: MIT
+version: 0.1.0
