@@ -1,16 +1,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from apps.api.app.api.v1.router import router as api_v1_router
+from apps.api.app.core.config import settings
+
+
 app = FastAPI(
-    title="Neuro-Silicon API",
+    title=settings.app_name,
+    version=settings.app_version,
     description="Backend API for the Neuro-Silicon Symbiosis research platform.",
-    version="0.1.0",
 )
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
+        settings.frontend_origin,
         "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
@@ -18,12 +22,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(api_v1_router, prefix=settings.api_v1_prefix)
+
 
 @app.get("/")
 def root():
     return {
-        "name": "Neuro-Silicon Symbiosis API",
-        "version": "0.1.0",
+        "name": settings.app_name,
+        "version": settings.app_version,
         "status": "online",
     }
 
@@ -33,15 +39,5 @@ def health():
     return {
         "status": "healthy",
         "service": "neuro-silicon-api",
-        "version": "0.1.0",
-    }
-
-
-@app.get("/api/v1/system")
-def system_info():
-    return {
-        "platform": "Neuro-Silicon Symbiosis",
-        "api_version": "v1",
-        "research_mode": True,
-        "status": "operational",
+        "version": settings.app_version,
     }
