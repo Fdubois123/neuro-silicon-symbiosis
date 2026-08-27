@@ -3,6 +3,9 @@ from fastapi import APIRouter
 from app.api.v1.digital_twin import (
     router as digital_twin_router,
 )
+from app.api.v1.fusion import (
+    router as fusion_router,
+)
 
 
 router = APIRouter()
@@ -28,4 +31,13 @@ def system_info():
 
 router.include_router(
     digital_twin_router
+)
+
+
+# ============================================================
+# FUSION LAB
+# ============================================================
+
+router.include_router(
+    fusion_router
 )
