@@ -1,5 +1,8 @@
 from fastapi import APIRouter
 
+from app.api.v1.brain_explorer import (
+    router as brain_explorer_router,
+)
 from app.api.v1.datasets import (
     router as datasets_router,
 )
@@ -33,7 +36,7 @@ def system_info():
 # ============================================================
 
 router.include_router(
-    digital_twin_router
+    digital_twin_router,
 )
 
 
@@ -42,7 +45,7 @@ router.include_router(
 # ============================================================
 
 router.include_router(
-    fusion_router
+    fusion_router,
 )
 
 
@@ -51,5 +54,14 @@ router.include_router(
 # ============================================================
 
 router.include_router(
-    datasets_router
+    datasets_router,
+)
+
+
+# ============================================================
+# BRAIN EXPLORER
+# ============================================================
+
+router.include_router(
+    brain_explorer_router,
 )
