@@ -1,5 +1,8 @@
 from fastapi import APIRouter
 
+from app.api.v1.datasets import (
+    router as datasets_router,
+)
 from app.api.v1.digital_twin import (
     router as digital_twin_router,
 )
@@ -40,4 +43,13 @@ router.include_router(
 
 router.include_router(
     fusion_router
+)
+
+
+# ============================================================
+# DATASETS
+# ============================================================
+
+router.include_router(
+    datasets_router
 )
