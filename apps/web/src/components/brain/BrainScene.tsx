@@ -1390,160 +1390,154 @@ function LoadingBrain() {
 
 export default function BrainScene({
   resetKey = 0,
-
   selection,
-
   viewMode,
-
   halfSide,
-
   onSelect,
-
   onViewChange,
 }: BrainSceneProps) {
   const controlsRef =
-    useRef<
-      OrbitControlsImpl | null
-    >(null);
+    useRef<OrbitControlsImpl | null>(
+      null,
+    );
+
+  /*
+   * IMPORTANT:
+   *
+   * Next.js renders Client Components on the server
+   * before hydrating them in the browser.
+   *
+   * React Three Fiber / WebGL should only be mounted
+   * after the browser has completed hydration.
+   *
+   * Keeping the server render and first client render
+   * identical prevents the hydration mismatch that was
+   * appearing in the Next.js development overlay.
+   */
+  const [mounted, setMounted] =
+    useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
-    <div
-      className="
-        relative
-        h-full
-        w-full
-      "
-    >
-      <Canvas
-        camera={{
-          position: [
-            5.7,
-            0.55,
-            4.2,
-          ],
+    <div className="relative h-full w-full">
+      {!mounted ? (
+        /*
+         * Stable server/client hydration placeholder.
+         *
+         * This renders identically on:
+         * 1. the server
+         * 2. the first browser render
+         *
+         * The real WebGL scene replaces it immediately
+         * after React mounts.
+         */
+        <div className="absolute inset-0 flex items-center justify-center bg-transparent">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-300/15 border-t-cyan-300/70" />
 
-          fov: 39,
-
-          near: 0.01,
-
-          far: 1000,
-        }}
-        dpr={[1, 2]}
-        gl={{
-          antialias: true,
-
-          alpha: true,
-
-          powerPreference:
-            "high-performance",
-        }}
-        onCreated={({
-          gl,
-        }) => {
-          /*
-           * Required for
-           * half-brain clipping.
-           */
-          gl.localClippingEnabled =
-            true;
-        }}
-        onPointerMissed={() => {
-          onSelect?.(
-            null,
-          );
-        }}
-      >
-        <Lighting />
-
-        <Stars
-          radius={35}
-          depth={18}
-          count={190}
-          factor={0.65}
-          saturation={0}
-          fade
-          speed={0.015}
-        />
-
-        <Suspense
-          fallback={
-            <LoadingBrain />
-          }
+            <p className="text-[10px] uppercase tracking-[0.18em] text-cyan-300/35">
+              Initializing Neural Renderer
+            </p>
+          </div>
+        </div>
+      ) : (
+        <Canvas
+          camera={{
+            position: [
+              5.7,
+              0.55,
+              4.2,
+            ],
+            fov: 39,
+            near: 0.01,
+            far: 1000,
+          }}
+          dpr={[1, 2]}
+          gl={{
+            antialias: true,
+            alpha: true,
+            powerPreference:
+              "high-performance",
+          }}
+          onCreated={({ gl }) => {
+            /*
+             * Required for
+             * half-brain clipping.
+             */
+            gl.localClippingEnabled =
+              true;
+          }}
+          onPointerMissed={() => {
+            onSelect?.(null);
+          }}
         >
-          <AnatomicalBrain
-            selection={
-              selection
+          <Lighting />
+
+          <Stars
+            radius={35}
+            depth={18}
+            count={190}
+            factor={0.65}
+            saturation={0}
+            fade
+            speed={0.015}
+          />
+
+          <Suspense
+            fallback={
+              <LoadingBrain />
             }
-            viewMode={
-              viewMode
-            }
-            halfSide={
-              halfSide
-            }
-            onSelect={
-              onSelect
+          >
+            <AnatomicalBrain
+              selection={selection}
+              viewMode={viewMode}
+              halfSide={halfSide}
+              onSelect={onSelect}
+            />
+          </Suspense>
+
+          <OrientationGuide />
+
+          <OrbitControls
+            ref={controlsRef}
+            makeDefault
+            target={[
+              0,
+              0,
+              0,
+            ]}
+            enableRotate
+            enableZoom
+            enablePan
+            enableDamping
+            dampingFactor={0.055}
+            rotateSpeed={0.5}
+            zoomSpeed={0.72}
+            panSpeed={0.4}
+            minDistance={2.15}
+            maxDistance={11}
+            zoomToCursor
+          />
+
+          <DepthObserver
+            onViewChange={
+              onViewChange
             }
           />
-        </Suspense>
 
-        <OrientationGuide />
-
-        <OrbitControls
-          ref={
-            controlsRef
-          }
-          makeDefault
-          target={[
-            0,
-            0,
-            0,
-          ]}
-          enableRotate
-          enableZoom
-          enablePan
-          enableDamping
-          dampingFactor={
-            0.055
-          }
-          rotateSpeed={
-            0.5
-          }
-          zoomSpeed={
-            0.72
-          }
-          panSpeed={
-            0.4
-          }
-          minDistance={
-            2.15
-          }
-          maxDistance={
-            11
-          }
-          zoomToCursor
-        />
-
-        <DepthObserver
-          onViewChange={
-            onViewChange
-          }
-        />
-
-        <CameraController
-          resetKey={
-            resetKey
-          }
-          viewMode={
-            viewMode
-          }
-          halfSide={
-            halfSide
-          }
-          controlsRef={
-            controlsRef
-          }
-        />
-      </Canvas>
+          <CameraController
+            resetKey={resetKey}
+            viewMode={viewMode}
+            halfSide={halfSide}
+            controlsRef={
+              controlsRef
+            }
+          />
+        </Canvas>
+      )}
     </div>
   );
 }

@@ -1,20 +1,27 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from apps.api.app.api.v1.router import router as api_v1_router
-from apps.api.app.core.config import settings
+from app.api.v1.router import router as api_v1_router
 
 
 app = FastAPI(
-    title=settings.app_name,
-    version=settings.app_version,
-    description="Backend API for the Neuro-Silicon Symbiosis research platform.",
+    title="Neuro-Silicon Symbiosis API",
+    version="0.1.0",
+    description=(
+        "FastAPI backend for the Neuro-Silicon Symbiosis "
+        "cognitive resilience research platform."
+    ),
 )
+
+
+# ============================================================
+# CORS
+# ============================================================
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        settings.frontend_origin,
+        "http://localhost:3000",
         "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
@@ -22,22 +29,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api_v1_router, prefix=settings.api_v1_prefix)
 
+# ============================================================
+# ROOT
+# ============================================================
 
 @app.get("/")
 def root():
     return {
-        "name": settings.app_name,
-        "version": settings.app_version,
+        "name": "Neuro-Silicon Symbiosis API",
+        "version": "0.1.0",
         "status": "online",
     }
 
+
+# ============================================================
+# HEALTH
+# ============================================================
 
 @app.get("/health")
 def health():
     return {
         "status": "healthy",
-        "service": "neuro-silicon-api",
-        "version": settings.app_version,
     }
+
+
+# ============================================================
+# API V1
+# ============================================================
+
+app.include_router(
+    api_v1_router,
+    prefix="/api/v1",
+)
